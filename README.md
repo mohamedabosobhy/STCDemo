@@ -23,4 +23,6 @@ public static void main(String args[]){
 
 }
   
-  ```    
+  ```
+## Output
+![Problem Solving Output](./images/p1.png)  
