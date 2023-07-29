@@ -25,4 +25,4 @@ public static void main(String args[]){
   
   ```
 ## Output
-![Problem Solving Output](./images/p1.png)  
+![Problem Solving Output](./Images/p1.png)  
