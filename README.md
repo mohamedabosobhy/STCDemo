@@ -26,3 +26,17 @@ public static void main(String args[]){
   ```
 ## Output
 ![Problem Solving Output](./Images/p1.png)  
+
+# Database Query
+  ```
+  select * from 
+(SELECT "user".user_id ,username,training_id, training_date,count(*)  FROM 
+"Training_details"   join "user"
+on "user".user_id="Training_details".user_id
+
+ group by 
+ "user".user_id,"Training_details".training_id,"Training_details".training_date
+order by  training_id) as foo where count >1 order by training_date Desc
+  ```
+## Output
+![DB Output](./Images/p2.png)  
