@@ -69,4 +69,14 @@ curl --location --request POST 'http://localhost:8080/api/createFolder' \
 }'
   ```
 ### output 
- ![DB Output](./Images/p4.png) 
+ ![DB Output](./Images/p4.png)
+
+## API to create File
+  ```
+curl --location --request POST 'http://localhost:8080/api/createFile' \
+--form 'file=@"/C:/Users/SobhyAhmedM/Downloads/backend.pdf"' \
+--form 'email="sobhy@gmail.com"' \
+--form 'path="stc-assessment/stc-assessment"'
+  ```
+### output 
+ ![DB Output](./Images/p5.png) 

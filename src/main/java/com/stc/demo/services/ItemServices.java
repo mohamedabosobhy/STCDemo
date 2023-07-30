@@ -43,29 +43,28 @@ public class ItemServices {
 	public Item createSpace(CreateItemRequest request) throws SpaceAleardyExistException {
 
 		String path = preparePath(request.getName());
-		List<Item> items = irepo.getPath(path, ItemTypeEnum.Space.name(),request.getName());
+		List<Item> items = irepo.getPath(path, ItemTypeEnum.Space.name(), request.getName());
 		if (!items.isEmpty())
 			throw new SpaceAleardyExistException("Space Already Exist");
-		return saveItem(path,request.getName(), ItemTypeEnum.Space.name(), request.getGropId(), null);
+		return saveItem(path, request.getName(), ItemTypeEnum.Space.name(), request.getGropId(), null);
 	}
 
 	public Item createFolder(CreateItemRequest request)
 			throws AccessException, PathNotFoundException, FolderAleardyExistException {
-		Pair<Item, String> itemPath = getFolderOrFile(null, request.getPath(), request.getName(),
-				request.getUserEmail(), true,PermissionLevelEnnum.EDIT.name());
+		Pair<Item, String> itemPath = getFolderOrFile(ItemTypeEnum.Folder.name(), request.getPath(), request.getName(),
+				request.getUserEmail(), true, PermissionLevelEnnum.EDIT.name());
 		Item pItem = itemPath.getLeft();
-		String pm = preparePath(itemPath.getRight(),request.getName());
-		System.out.println(pm);
-		return saveItem(pm, request.getName(), ItemTypeEnum.Folder.name(), request.getGropId(),
-				pItem.getId());
+		String pm = preparePath(itemPath.getRight(), request.getName());
+		return saveItem(pm, request.getName(), ItemTypeEnum.Folder.name(), request.getGropId(), pItem.getId());
 	}
 
 	public Item createFile(MultipartFile file, String path, String email)
 			throws PathNotFoundException, FolderAleardyExistException, AccessException, IOException {
-		Pair<Item, String> itemPath = getFolderOrFile(ItemTypeEnum.File.name(), path, file.getOriginalFilename(), email,
-				true,PermissionLevelEnnum.EDIT.name());
+		Pair<Item, String> itemPath = getFolderOrFile(ItemTypeEnum.File.name(), path, file.getOriginalFilename(), email, true,
+				PermissionLevelEnnum.EDIT.name());
 		Item pItem = itemPath.getLeft();
-		Item item = saveItem(itemPath.getRight(), file.getOriginalFilename(), ItemTypeEnum.File.name(),
+		String pm = preparePath(itemPath.getRight(), file.getOriginalFilename());
+		Item item = saveItem(pm, file.getOriginalFilename(), ItemTypeEnum.File.name(),
 				pItem.getGroup().getId(), pItem.getId());
 		frepo.save(File.builder().data(file.getBytes()).item(item).build());
 		return item;
@@ -73,13 +72,15 @@ public class ItemServices {
 
 	public Item getFileMetaData(String path, String email)
 			throws AccessException, PathNotFoundException, FolderAleardyExistException {
-		Pair<Item, String> itemPath = getFolderOrFile(ItemTypeEnum.File.name(), path, null, email, false,PermissionLevelEnnum.VIEW.name());
+		Pair<Item, String> itemPath = getFolderOrFile(ItemTypeEnum.File.name(), path, null, email, false,
+				PermissionLevelEnnum.VIEW.name());
 		return itemPath.getLeft();
 	}
 
 	public Pair<byte[], String> getFile(String path, String email)
 			throws AccessException, PathNotFoundException, FolderAleardyExistException {
-		Pair<Item, String> itemPath = getFolderOrFile(ItemTypeEnum.File.name(), path, null, email, false,PermissionLevelEnnum.VIEW.name());
+		Pair<Item, String> itemPath = getFolderOrFile(ItemTypeEnum.File.name(), path, null, email, false,
+				PermissionLevelEnnum.VIEW.name());
 		Item item = itemPath.getLeft();
 		File fileBinary = frepo.findByItem(item);
 		return Pair.of(fileBinary.getData(), item.getName());
@@ -87,8 +88,7 @@ public class ItemServices {
 
 	public Item saveItem(String path, String itemName, String itemType, Long groupId, Long pid) {
 		long id = new Date().getTime();
-		irepo.save(id, path,itemName, itemType,
-				groupId, pid);
+		irepo.save(id, path, itemName, itemType, groupId, pid);
 		return irepo.findById(id).orElse(null);
 	}
 
@@ -99,26 +99,30 @@ public class ItemServices {
 		pathBuilder.append("}");
 		return pathBuilder.toString();
 	}
+
 	public String preparePath(String path) {
 		StringBuilder pathBuilder = new StringBuilder();
 		pathBuilder.append("{").append(path.replace("-", ""));
 		pathBuilder.append("}");
+		System.out.println(pathBuilder);
 		return pathBuilder.toString();
 	}
 
-	public List<Item> getItemBypath(String itemPath, String name, String type,boolean isPath) {
+	public List<Item> getItemBypath(String itemPath, String name, String type, boolean isPath) {
 		if (isPath)
-			return irepo.getPath(preparePath(itemPath), type,name);
-		return irepo.getPath(preparePath(itemPath, name), type,name);
+			return irepo.getPath(preparePath(itemPath), type, name);
+		return irepo.getPath(preparePath(itemPath, name), type, name);
 	}
 
 	public Pair<Item, String> getFolderOrFile(String type, String itemPath, String name, String email,
 			boolean checkExist, String permissionLevel)
 			throws PathNotFoundException, FolderAleardyExistException, AccessException {
-
-		String parentType = itemPath.split("/").length > 1 ? ItemTypeEnum.Folder.name() : ItemTypeEnum.Space.name();
+		String itemsplit[] = itemPath.split("/");
+		String paranetName= itemsplit[itemsplit.length-1];
+		String parentType = type.equals(ItemTypeEnum.File.name())?ItemTypeEnum.Folder.name():( itemPath.split("/").length > 1 ? ItemTypeEnum.Folder.name() : ItemTypeEnum.Space.name());
 		String path = itemPath.replace("/", ".");
-		List<Item> items = getItemBypath(path,name,(type==null?parentType:type) ,true);
+		
+		List<Item> items = getItemBypath(path,paranetName,parentType ,true);
 		if (items == null || items.isEmpty())
 			throw new PathNotFoundException("the path of  folder Or File is not found");
 		if (checkExist && !getItemBypath(path, name, type,false).isEmpty())
