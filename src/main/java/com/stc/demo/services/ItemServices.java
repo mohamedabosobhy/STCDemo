@@ -42,10 +42,11 @@ public class ItemServices {
 
 	public Item createSpace(CreateItemRequest request) throws SpaceAleardyExistException {
 
-		List<Item> items = irepo.getPath(preparePath(request.getName(), null).toString(), ItemTypeEnum.Space.name(),request.getName());
+		String path = preparePath(request.getName());
+		List<Item> items = irepo.getPath(path, ItemTypeEnum.Space.name(),request.getName());
 		if (!items.isEmpty())
 			throw new SpaceAleardyExistException("Space Already Exist");
-		return saveItem(request.getName(), null, ItemTypeEnum.Space.name(), request.getGropId(), null);
+		return saveItem(path,request.getName(), ItemTypeEnum.Space.name(), request.getGropId(), null);
 	}
 
 	public Item createFolder(CreateItemRequest request)
@@ -53,7 +54,7 @@ public class ItemServices {
 		Pair<Item, String> itemPath = getFolderOrFile(ItemTypeEnum.Folder.name(), request.getPath(), request.getName(),
 				request.getUserEmail(), true,PermissionLevelEnnum.EDIT.name());
 		Item pItem = itemPath.getLeft();
-		return saveItem(itemPath.getRight(), request.getName(), ItemTypeEnum.Folder.name(), request.getGropId(),
+		return saveItem(preparePath(itemPath.getRight(),request.getName()), request.getName(), ItemTypeEnum.Folder.name(), request.getGropId(),
 				pItem.getId());
 	}
 
@@ -82,27 +83,32 @@ public class ItemServices {
 		return Pair.of(fileBinary.getData(), item.getName());
 	}
 
-	public Item saveItem(String itemPath, String itemName, String itemType, Long groupId, Long pid) {
-		StringBuilder path = preparePath(itemPath, itemName);
+	public Item saveItem(String path, String itemName, String itemType, Long groupId, Long pid) {
 		long id = new Date().getTime();
-		irepo.save(id, path.toString(),
-				Optional.ofNullable(itemName).orElse(path.toString().replace("{", "").replace("}", "")), itemType,
+		irepo.save(id, path,itemName, itemType,
 				groupId, pid);
 		return irepo.findById(id).orElse(null);
 	}
 
-	public StringBuilder preparePath(String path, String appendPath) {
+	public String preparePath(String path, String appendPath) {
 		StringBuilder pathBuilder = new StringBuilder();
 		pathBuilder.append("{").append(path.replace("-", ""));
 		Optional.ofNullable(appendPath).ifPresent(s -> pathBuilder.append(".").append(s));
 		pathBuilder.append("}");
-		return pathBuilder;
+		return pathBuilder.toString();
+	}
+	public String preparePath(String path) {
+		StringBuilder pathBuilder = new StringBuilder();
+		pathBuilder.append("{").append(path.replace("-", ""));
+		pathBuilder.append("}");
+		System.out.println("nn " +pathBuilder.toString());
+		return pathBuilder.toString();
 	}
 
-	public List<Item> getItemBypath(String itemPath, String appendPath, String type,String name) {
-		if (type == null)
-			return irepo.getPathNoType(preparePath(itemPath, appendPath).toString());
-		return irepo.getPath(preparePath(itemPath, appendPath).toString(), type,name);
+	public List<Item> getItemBypath(String itemPath, String name, String type,boolean isPath) {
+		if (isPath)
+			return irepo.getPath(preparePath(itemPath), type,name);
+		return irepo.getPath(preparePath(itemPath, name), type,name);
 	}
 
 	public Pair<Item, String> getFolderOrFile(String type, String itemPath, String name, String email,
@@ -112,10 +118,10 @@ public class ItemServices {
 		String namePath = itemPath.substring(itemPath.lastIndexOf("/"));
 		String parentType = itemPath.split("/").length > 1 ? ItemTypeEnum.Folder.name() : ItemTypeEnum.Space.name();
 		String path = itemPath.replace("/", ".");
-		List<Item> items = getItemBypath(path, null, name == null ? type : parentType,name==null?namePath:name);
+		List<Item> items = getItemBypath(path,parentType,name ,true);
 		if (items == null || items.isEmpty())
 			throw new PathNotFoundException("the path of  folder Or File is not found");
-		if (checkExist && !getItemBypath(path, name, type,name).isEmpty())
+		if (checkExist && !getItemBypath(path, name, type,false).isEmpty())
 			throw new FolderAleardyExistException("the folder OR File already exist in same path");
 		List<Permissions> p = prepo.getP(email, items.get(0).getGroup());
 		if (p == null || p.isEmpty() || !checkPermission(p,permissionLevel))

@@ -40,3 +40,18 @@ order by  training_id) as foo where count >1 order by training_date Desc
   ```
 ## Output
 ![DB Output](./Images/p2.png)  
+
+# System desgin 
+
+## API to create Space
+	```
+curl --location --request POST 'http://localhost:8080/api/createSpace' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name":"stc-assessment",
+    "gropId":"1"
+    
+}'
+  ```
+## output 
+ ![DB Output](./Images/p3.png) 
