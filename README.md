@@ -93,5 +93,5 @@ curl --location --request GET 'http://localhost:8080/api/fileMetaData?email=sobh
 http://localhost:8080/api/fileMetaData?email=sobhy@gmail.com&path=stc-assessment/stc-assessment/backend.pdf
   ```
 ### output 
- ![DB Output](./Images/p6.png)
+ ![DB Output](./Images/p7.png)
  
