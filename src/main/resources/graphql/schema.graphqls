@@ -1,0 +1,10 @@
+type item {
+    id: ID!
+    name: String!
+    type: String!
+
+}
+
+type Query {
+    fileMetaData(path: String, email: String): item!
+}
