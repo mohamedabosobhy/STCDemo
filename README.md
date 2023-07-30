@@ -95,3 +95,15 @@ http://localhost:8080/api/fileMetaData?email=sobhy@gmail.com&path=stc-assessment
 ### output 
  ![DB Output](./Images/p7.png)
  
+ ### output 
+ ![DB Output](./Images/p6.png) 
+ 
+ ## API Grphical ql
+  ```
+curl --location --request POST 'http://localhost:8080/graphql' \
+--header 'Content-Type: application/json' \
+--data-raw '{"query":"query {\r\n    fileMetaData(path:\"sobhy/omar/pom.xml\",email:\"sobhy@gmail.com\"){\r\n        id\r\n        name\r\n        type\r\n        \r\n    }\r\n}","variables":{}}'
+  ```
+### output 
+ ![DB Output](./Images/p8.png)
+ 
