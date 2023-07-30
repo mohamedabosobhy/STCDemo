@@ -79,4 +79,19 @@ curl --location --request POST 'http://localhost:8080/api/createFile' \
 --form 'path="stc-assessment/stc-assessment"'
   ```
 ### output 
- ![DB Output](./Images/p5.png) 
+ ![DB Output](./Images/p5.png)
+
+## API Get File MetaData
+  ```
+curl --location --request GET 'http://localhost:8080/api/fileMetaData?email=sobhy@gmail.com&path=stc-assessment/stc-assessment/backend.pdf'
+  ```
+### output 
+ ![DB Output](./Images/p6.png) 
+ 
+ ## API Get File Download
+  ```
+http://localhost:8080/api/fileMetaData?email=sobhy@gmail.com&path=stc-assessment/stc-assessment/backend.pdf
+  ```
+### output 
+ ![DB Output](./Images/p6.png)
+ 

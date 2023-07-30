@@ -84,9 +84,8 @@ public class ItemServices {
 
 	public Pair<byte[], String> getFile(String path, String email)
 			throws AccessException, PathNotFoundException, FolderAleardyExistException {
-		Pair<Item, String> itemPath = getFolderOrFile(ItemTypeEnum.File.name(), path, null, email, false,
-				PermissionLevelEnnum.VIEW.name());
-		Item item = itemPath.getLeft();
+		
+		Item item = getFileMetaData(path,email);
 		File fileBinary = frepo.findByItem(item);
 		return Pair.of(fileBinary.getData(), item.getName());
 	}
