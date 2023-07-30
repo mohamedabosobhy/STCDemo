@@ -95,8 +95,6 @@ http://localhost:8080/api/fileMetaData?email=sobhy@gmail.com&path=stc-assessment
 ### output 
  ![DB Output](./Images/p7.png)
  
- ### output 
- ![DB Output](./Images/p6.png) 
  
  ## API Grphical ql
   ```
