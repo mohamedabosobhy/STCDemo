@@ -54,4 +54,4 @@ curl --location --request POST 'http://localhost:8080/api/createSpace' \
 }'
   ```
 ## output 
- ![DB Output](./Images/p.png) 
+ ![DB Output](./Images/p3.png) 
