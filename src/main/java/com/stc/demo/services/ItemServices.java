@@ -60,21 +60,26 @@ public class ItemServices {
 
 	public Item createFile(MultipartFile file, String path, String email)
 			throws PathNotFoundException, FolderAleardyExistException, AccessException, IOException {
-		Pair<Item, String> itemPath = getFolderOrFile(ItemTypeEnum.File.name(), path, file.getOriginalFilename(), email, true,
-				PermissionLevelEnnum.EDIT.name());
+		Pair<Item, String> itemPath = getFolderOrFile(ItemTypeEnum.File.name(), path, file.getOriginalFilename(), email,
+				true, PermissionLevelEnnum.EDIT.name());
 		Item pItem = itemPath.getLeft();
 		String pm = preparePath(itemPath.getRight(), file.getOriginalFilename());
-		Item item = saveItem(pm, file.getOriginalFilename(), ItemTypeEnum.File.name(),
-				pItem.getGroup().getId(), pItem.getId());
+		Item item = saveItem(pm, file.getOriginalFilename(), ItemTypeEnum.File.name(), pItem.getGroup().getId(),
+				pItem.getId());
 		frepo.save(File.builder().data(file.getBytes()).item(item).build());
 		return item;
 	}
 
-	public Item getFileMetaData(String path, String email)
-			throws AccessException, PathNotFoundException, FolderAleardyExistException {
-		Pair<Item, String> itemPath = getFolderOrFile(ItemTypeEnum.File.name(), path, null, email, false,
-				PermissionLevelEnnum.VIEW.name());
-		return itemPath.getLeft();
+	public Item getFileMetaData(String path, String email) throws AccessException, PathNotFoundException {
+		List<Item> items = getItemBypath(path.replace("/", "."), path.substring(path.lastIndexOf("/") + 1),
+				ItemTypeEnum.File.name(), true);
+		if (items == null || items.isEmpty())
+			throw new PathNotFoundException("the  File is not found");
+		List<Permissions> p = prepo.getP(email, items.get(0).getGroup());
+		if (p == null || p.isEmpty() || (!checkPermission(p, PermissionLevelEnnum.EDIT.name())
+				&& !checkPermission(p, PermissionLevelEnnum.VIEW.name())))
+			throw new AccessException("You do not have permission to add folder");
+		return items.get(0);
 	}
 
 	public Pair<byte[], String> getFile(String path, String email)
@@ -118,17 +123,18 @@ public class ItemServices {
 			boolean checkExist, String permissionLevel)
 			throws PathNotFoundException, FolderAleardyExistException, AccessException {
 		String itemsplit[] = itemPath.split("/");
-		String paranetName= itemsplit[itemsplit.length-1];
-		String parentType = type.equals(ItemTypeEnum.File.name())?ItemTypeEnum.Folder.name():( itemPath.split("/").length > 1 ? ItemTypeEnum.Folder.name() : ItemTypeEnum.Space.name());
+		String paranetName = itemsplit[itemsplit.length - 1];
+		String parentType = type.equals(ItemTypeEnum.File.name()) ? ItemTypeEnum.Folder.name()
+				: (itemPath.split("/").length > 1 ? ItemTypeEnum.Folder.name() : ItemTypeEnum.Space.name());
 		String path = itemPath.replace("/", ".");
-		
-		List<Item> items = getItemBypath(path,paranetName,parentType ,true);
+
+		List<Item> items = getItemBypath(path, paranetName, parentType, true);
 		if (items == null || items.isEmpty())
 			throw new PathNotFoundException("the path of  folder Or File is not found");
-		if (checkExist && !getItemBypath(path, name, type,false).isEmpty())
+		if (checkExist && !getItemBypath(path, name, type, false).isEmpty())
 			throw new FolderAleardyExistException("the folder OR File already exist in same path");
 		List<Permissions> p = prepo.getP(email, items.get(0).getGroup());
-		if (p == null || p.isEmpty() || !checkPermission(p,permissionLevel))
+		if (p == null || p.isEmpty() || !checkPermission(p, permissionLevel))
 			throw new AccessException("You do not have permission to add folder");
 		return Pair.of(items.get(0), path);
 	}
