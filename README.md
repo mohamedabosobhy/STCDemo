@@ -44,7 +44,7 @@ order by  training_id) as foo where count >1 order by training_date Desc
 # System desgin 
 
 ## API to create Space
-	```
+  ```
 curl --location --request POST 'http://localhost:8080/api/createSpace' \
 --header 'Content-Type: application/json' \
 --data-raw '{
@@ -54,4 +54,4 @@ curl --location --request POST 'http://localhost:8080/api/createSpace' \
 }'
   ```
 ## output 
- ![DB Output](./Images/p3.png) 
+ ![DB Output](./Images/p.png) 
