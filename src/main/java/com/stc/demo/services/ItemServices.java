@@ -51,10 +51,12 @@ public class ItemServices {
 
 	public Item createFolder(CreateItemRequest request)
 			throws AccessException, PathNotFoundException, FolderAleardyExistException {
-		Pair<Item, String> itemPath = getFolderOrFile(ItemTypeEnum.Folder.name(), request.getPath(), request.getName(),
+		Pair<Item, String> itemPath = getFolderOrFile(null, request.getPath(), request.getName(),
 				request.getUserEmail(), true,PermissionLevelEnnum.EDIT.name());
 		Item pItem = itemPath.getLeft();
-		return saveItem(preparePath(itemPath.getRight(),request.getName()), request.getName(), ItemTypeEnum.Folder.name(), request.getGropId(),
+		String pm = preparePath(itemPath.getRight(),request.getName());
+		System.out.println(pm);
+		return saveItem(pm, request.getName(), ItemTypeEnum.Folder.name(), request.getGropId(),
 				pItem.getId());
 	}
 
@@ -93,7 +95,7 @@ public class ItemServices {
 	public String preparePath(String path, String appendPath) {
 		StringBuilder pathBuilder = new StringBuilder();
 		pathBuilder.append("{").append(path.replace("-", ""));
-		Optional.ofNullable(appendPath).ifPresent(s -> pathBuilder.append(".").append(s));
+		Optional.ofNullable(appendPath).ifPresent(s -> pathBuilder.append(".").append(s.replace("-", "")));
 		pathBuilder.append("}");
 		return pathBuilder.toString();
 	}
@@ -101,7 +103,6 @@ public class ItemServices {
 		StringBuilder pathBuilder = new StringBuilder();
 		pathBuilder.append("{").append(path.replace("-", ""));
 		pathBuilder.append("}");
-		System.out.println("nn " +pathBuilder.toString());
 		return pathBuilder.toString();
 	}
 
@@ -115,10 +116,9 @@ public class ItemServices {
 			boolean checkExist, String permissionLevel)
 			throws PathNotFoundException, FolderAleardyExistException, AccessException {
 
-		String namePath = itemPath.substring(itemPath.lastIndexOf("/"));
 		String parentType = itemPath.split("/").length > 1 ? ItemTypeEnum.Folder.name() : ItemTypeEnum.Space.name();
 		String path = itemPath.replace("/", ".");
-		List<Item> items = getItemBypath(path,parentType,name ,true);
+		List<Item> items = getItemBypath(path,name,(type==null?parentType:type) ,true);
 		if (items == null || items.isEmpty())
 			throw new PathNotFoundException("the path of  folder Or File is not found");
 		if (checkExist && !getItemBypath(path, name, type,false).isEmpty())

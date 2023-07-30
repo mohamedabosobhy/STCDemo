@@ -53,5 +53,20 @@ curl --location --request POST 'http://localhost:8080/api/createSpace' \
     
 }'
   ```
-## output 
+### output 
  ![DB Output](./Images/p3.png) 
+
+## API to create Folder
+  ```
+curl --location --request POST 'http://localhost:8080/api/createFolder' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name":"stc-assessment",
+    "gropId":"1",
+    "userEmail":"sobhy@gmail.com",
+    "path":"stc-assessment"
+    
+}'
+  ```
+### output 
+ ![DB Output](./Images/p4.png) 
